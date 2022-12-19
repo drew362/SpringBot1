@@ -9,9 +9,15 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +54,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     @Override
-    public void onUpdateReceived(Update update) {
+    public void onUpdateReceived(Update update){
         if (update.hasMessage() && update.getMessage().hasText()) {
             String messageText = update.getMessage().getText();
             long chatId = update.getMessage().getChatId();
@@ -66,24 +72,6 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
-//    private void registerUser(Message msg) {
-//        if (userRepository.findById(msg.getChatId()).isEmpty()) {
-//            var chatId = msg.getChatId();
-//            var chat = msg.getChat();
-//
-//            User user = new User();
-//            user.setChatId(chatId);
-//            user.setFirstName(chat.getFirstName());
-//            user.setLastName(chat.getLastName());
-//            user.setUserName(chat.getUserName());
-////            user.setRegister(new TimeStamp(System.currentTimeMillis()));
-//
-//            userRepository.save(user);
-//            log.info("User saved: " + user);
-//
-//        }
-//    }
-
     private void startCommandReceived(long chatId, String name) {
         String answer = "Hi " + name + "\uD83D\uDE42";
         log.info("Reply for user " + name);
@@ -95,6 +83,25 @@ public class TelegramBot extends TelegramLongPollingBot {
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
         message.setText(textToSend);
+
+
+        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+        List<KeyboardRow> keyboardRows = new ArrayList<>();
+
+        KeyboardRow row = new KeyboardRow();
+        row.add("Weather");
+        row.add("People");
+
+        keyboardRows.add(row);
+
+        row = new KeyboardRow();
+        row.add("Some command");
+
+        keyboardRows.add(row);
+
+        keyboardMarkup.setKeyboard(keyboardRows);
+        message.setReplyMarkup(keyboardMarkup);
+
         try {
             execute(message);
         } catch (TelegramApiException e) {
