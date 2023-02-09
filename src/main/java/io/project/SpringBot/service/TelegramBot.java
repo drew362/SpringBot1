@@ -2,12 +2,17 @@ package io.project.SpringBot.service;
 
 import io.project.SpringBot.config.BotConfig;
 
+import io.project.SpringBot.discriptTable.User;
+import io.project.SpringBot.discriptTable.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 
+import org.glassfish.grizzly.http.util.TimeStamp;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -19,23 +24,23 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.util.ArrayList;
 import java.util.List;
 
-import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 
 @Component
 public class TelegramBot extends TelegramLongPollingBot {
-//
-//    @Autowired
-//    private UserRepository userRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     final BotConfig config;
 
     public TelegramBot(BotConfig config) {
         this.config = config;
         List<BotCommand> listOfCommand = new ArrayList<>();
-        listOfCommand.add(new BotCommand("/mydata", "This my data with BD"));
+        listOfCommand.add(new BotCommand("/Знаки отличия", "Фалеристика"));
+        listOfCommand.add(new BotCommand("/Безмонетный период","Монеты древней Руси"));
+        listOfCommand.add(new BotCommand("/Антикварное оружие","оружие"));
         try {
             this.execute(new SetMyCommands(listOfCommand, new BotCommandScopeDefault(), null));
         } catch (TelegramApiException e) {
@@ -49,25 +54,41 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     @Override
-    public String getBotToken() {
+    public String getBotToken()  {
         return config.getToken();
     }
 
     @Override
-    public void onUpdateReceived(Update update){
+    public void onUpdateReceived(Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
             String messageText = update.getMessage().getText();
             long chatId = update.getMessage().getChatId();
 
             switch (messageText) {
                 case "/start":
-//                    registerUser(update.getMessage());
+                    registerUser(update.getMessage());
                     startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
                     break;
                 default:
-                    sendMessage(chatId, "coming soon");
+                    sendMessage(chatId, "хуй");
                     log.info("Текст сообщения: " + messageText + "; " + "Id чата: " + chatId);
             }
+
+        }
+    }
+
+    private void registerUser(Message msg) {
+        if (userRepository.findById(msg.getChatId()).isEmpty()) {
+            var chatId = msg.getChatId();
+            var chat = msg.getChat();
+
+            User user = new User();
+            user.setChatId(chatId);
+            user.setFirstName(chat.getFirstName());
+            user.setLastName(chat.getLastName());
+            user.setUserName(chat.getUserName());
+//            user.setRegister(new TimeStamp(System.currentTimeMillis()));
+            userRepository.save(user);
 
         }
     }
