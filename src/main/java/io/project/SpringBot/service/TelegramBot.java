@@ -1,5 +1,6 @@
 package io.project.SpringBot.service;
 
+import io.project.SpringBot.Storage;
 import io.project.SpringBot.config.BotConfig;
 
 import lombok.extern.slf4j.Slf4j;
@@ -26,20 +27,21 @@ import java.util.List;
 
 @Component
 public class TelegramBot extends TelegramLongPollingBot {
-//
-//    @Autowired
-//    private UserRepository userRepository;
 
     final BotConfig config;
 
     public TelegramBot(BotConfig config) {
         this.config = config;
         List<BotCommand> listOfCommand = new ArrayList<>();
-        listOfCommand.add(new BotCommand("/mydata", "This my data with BD"));
+        listOfCommand.add(new BotCommand("znaki_otlichiya", "фалеристика"));
+        listOfCommand.add(new BotCommand("bezmonetnyy_period", "монеты древней Руси"));
+        listOfCommand.add(new BotCommand("antikvarnoye_oruzhiye", "антикварное оружие"));
+        listOfCommand.add(new BotCommand("monety", "монеты"));
+
         try {
             this.execute(new SetMyCommands(listOfCommand, new BotCommandScopeDefault(), null));
         } catch (TelegramApiException e) {
-            log.error("this error bots command: " + e.getMessage());
+            log.error("Ошибка в меню бота: " + e.getMessage());
         }
     }
 
@@ -53,8 +55,10 @@ public class TelegramBot extends TelegramLongPollingBot {
         return config.getToken();
     }
 
+    Storage storage = new Storage();
+
     @Override
-    public void onUpdateReceived(Update update){
+    public void onUpdateReceived(Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
             String messageText = update.getMessage().getText();
             long chatId = update.getMessage().getChatId();
@@ -63,6 +67,10 @@ public class TelegramBot extends TelegramLongPollingBot {
                 case "/start":
 //                    registerUser(update.getMessage());
                     startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
+                    break;
+                case "/bezmonetnyy_period":
+                    String response = String.valueOf(storage.getProducts());
+                    sendMessage(chatId, response);
                     break;
                 default:
                     sendMessage(chatId, "coming soon");
@@ -107,6 +115,5 @@ public class TelegramBot extends TelegramLongPollingBot {
         } catch (TelegramApiException e) {
             log.error("error is occured " + e.getMessage());
         }
-
     }
 }
