@@ -10,27 +10,23 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
-
 @Component
+
 public class TelegramBot extends TelegramLongPollingBot {
 
     final BotConfig config;
 
-    public TelegramBot(BotConfig config) {
+    //меню
+    public TelegramBot(BotConfig config){
         this.config = config;
         List<BotCommand> listOfCommand = new ArrayList<>();
         listOfCommand.add(new BotCommand("znaki_otlichiya", "фалеристика"));
@@ -69,14 +65,35 @@ public class TelegramBot extends TelegramLongPollingBot {
                     startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
                     break;
                 case "/bezmonetnyy_period":
-                    String response = String.valueOf(storage.getProducts());
-                    sendMessage(chatId, response);
+                    ArrayList<String> products = new ArrayList<>();
+
+                    products.add("Гривна Новгородская XIII-XIV век. " + "\n"
+                            + storage.grivDESCR1 + "\n"
+                            + "Вес: 201 гр.");
+                    products.add("Полтина Литовская трехгранная XIV век. " + "\n"
+                            + storage.grivDESCR2 + "\n"
+                            + "Вес: 91 гр.");
+                    products.add("Гривна киевского типа XII век. " + "\n"
+                            + storage.grivDESCR3 + "\n"
+                            + "Вес: 162 гр.");
+                    products.add("Гривна Новгородская XIII век. " + "\n"
+                            + storage.grivDESCR4 + "\n"
+                            + "Вес: 199 гр.");
+                    products.add("Гривна литовская \"Изрой\". Вторая половина XIII. " + "\n"
+                            + storage.grivDESCR5 + "\n"
+                            + "Вес: 100 гр.");
+                    products.add("Гривна булгарская XIII. " + "\n"
+                            + storage.grivDESCR6 + "\n"
+                            + "Вес: 196 гр.");
+
+                    for (String item : products) {
+                        sendMessage(chatId, item);
+                    }
                     break;
                 default:
                     sendMessage(chatId, "coming soon");
                     log.info("Текст сообщения: " + messageText + "; " + "Id чата: " + chatId);
             }
-
         }
     }
 
