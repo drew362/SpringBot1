@@ -1,8 +1,10 @@
 package io.project.SpringBot.service;
 
-import io.project.SpringBot.Storage;
+import io.project.SpringBot.storageLot.AntikWeapon;
+import io.project.SpringBot.storageLot.BezmonetPeriod;
 import io.project.SpringBot.config.BotConfig;
 
+import io.project.SpringBot.storageLot.Faleristika;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Component;
@@ -15,6 +17,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +29,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     final BotConfig config;
 
     //меню
-    public TelegramBot(BotConfig config){
+    public TelegramBot(BotConfig config) {
         this.config = config;
         List<BotCommand> listOfCommand = new ArrayList<>();
         listOfCommand.add(new BotCommand("znaki_otlichiya", "фалеристика"));
@@ -51,7 +54,9 @@ public class TelegramBot extends TelegramLongPollingBot {
         return config.getToken();
     }
 
-    Storage storage = new Storage();
+    BezmonetPeriod bezmonetPeriod = new BezmonetPeriod();
+    Faleristika faleristika = new Faleristika();
+    AntikWeapon antikWeapon = new AntikWeapon();
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -65,28 +70,17 @@ public class TelegramBot extends TelegramLongPollingBot {
                     startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
                     break;
                 case "/bezmonetnyy_period":
-                    ArrayList<String> products = new ArrayList<>();
-
-                    products.add("Гривна Новгородская XIII-XIV век. " + "\n"
-                            + storage.grivDESCR1 + "\n"
-                            + "Вес: 201 гр.");
-                    products.add("Полтина Литовская трехгранная XIV век. " + "\n"
-                            + storage.grivDESCR2 + "\n"
-                            + "Вес: 91 гр.");
-                    products.add("Гривна киевского типа XII век. " + "\n"
-                            + storage.grivDESCR3 + "\n"
-                            + "Вес: 162 гр.");
-                    products.add("Гривна Новгородская XIII век. " + "\n"
-                            + storage.grivDESCR4 + "\n"
-                            + "Вес: 199 гр.");
-                    products.add("Гривна литовская \"Изрой\". Вторая половина XIII. " + "\n"
-                            + storage.grivDESCR5 + "\n"
-                            + "Вес: 100 гр.");
-                    products.add("Гривна булгарская XIII. " + "\n"
-                            + storage.grivDESCR6 + "\n"
-                            + "Вес: 196 гр.");
-
-                    for (String item : products) {
+                    for (String item : bezmonetPeriod.getProducts()) {
+                        sendMessage(chatId, item);
+                    }
+                    break;
+                case "/znaki_otlichiya":
+                    for (String item : faleristika.getFalerProducts()) {
+                        sendMessage(chatId, item);
+                    }
+                    break;
+                case "/antikvarnoye_oruzhiye":
+                    for (String item : antikWeapon.getAntikWeaponProducts()) {
                         sendMessage(chatId, item);
                     }
                     break;
